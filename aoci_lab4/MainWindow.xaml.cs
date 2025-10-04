@@ -156,5 +156,37 @@ namespace aoci_lab4
             return output;
         }
 
+        private void BoxBlur_Click(object sender, RoutedEventArgs e)
+        {
+            if (sourceImage == null) return;
+
+            // Ядро для Box Blur 3x3
+            double[,] kernel = {
+                { 1.0/9, 1.0/9, 1.0/9 },
+                { 1.0/9, 1.0/9, 1.0/9 },
+                { 1.0/9, 1.0/9, 1.0/9 }
+            };
+
+            Image<Bgr, byte> bluredImage;
+
+            bluredImage = ApplyConvolution(sourceImage, kernel);
+
+            MainImage.Source = ToBitmapSource(bluredImage);
+        }
+
+        private void GaussianBlur_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Sharpen_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Sobel_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
