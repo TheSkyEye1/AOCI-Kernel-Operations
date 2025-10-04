@@ -117,5 +117,44 @@ namespace aoci_lab4
             if (sourceImage == null) return;
             MainImage.Source = ToBitmapSource(sourceImage);
         }
+
+        private Image<Bgr, byte> ApplyConvolution(Image<Bgr, byte> input, double[,] kernel)
+        {
+            int kernelSize = kernel.GetLength(0);
+            int kernelRadius = kernelSize / 2;
+
+            Image<Bgr, byte> output = input.Clone();
+
+            for (int y = kernelRadius; y < input.Height - kernelRadius; y++)
+            {
+                for (int x = kernelRadius; x < input.Width - kernelRadius; x++)
+                {
+                    double sumR = 0, sumG = 0, sumB = 0;
+
+                    for (int ky = -kernelRadius; ky <= kernelRadius; ky++)
+                    {
+                        for (int kx = -kernelRadius; kx <= kernelRadius; kx++)
+                        {
+                            Bgr neighborPixel = input[y + ky, x + kx];
+
+                            double kernelValue = kernel[ky + kernelRadius, kx + kernelRadius];
+
+                            sumR += neighborPixel.Red * kernelValue;
+                            sumG += neighborPixel.Green * kernelValue;
+                            sumB += neighborPixel.Blue * kernelValue;
+                        }
+                    }
+
+                    output[y, x] = new Bgr(
+                        (byte)Math.Max(0, Math.Min(255, sumB)),
+                        (byte)Math.Max(0, Math.Min(255, sumG)),
+                        (byte)Math.Max(0, Math.Min(255, sumR))
+                    );
+                }
+            }
+
+            return output;
+        }
+
     }
 }
