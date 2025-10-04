@@ -156,6 +156,34 @@ namespace aoci_lab4
             return output;
         }
 
+        private Image<Gray, float> ApplyConvolution(Image<Gray, byte> input, double[,] kernel)
+        {
+            int kernelSize = kernel.GetLength(0);
+            int kernelRadius = kernelSize / 2;
+
+            Image<Gray, float> output = new Image<Gray, float>(input.Size);
+
+            for (int y = kernelRadius; y < input.Height - kernelRadius; y++)
+            {
+                for (int x = kernelRadius; x < input.Width - kernelRadius; x++)
+                {
+                    double sum = 0;
+
+                    for (int ky = -kernelRadius; ky <= kernelRadius; ky++)
+                    {
+                        for (int kx = -kernelRadius; kx <= kernelRadius; kx++)
+                        {
+                            byte neighborPixel = input.Data[y + ky, x + kx, 0];
+                            double kernelValue = kernel[ky + kernelRadius, kx + kernelRadius];
+                            sum += neighborPixel * kernelValue;
+                        }
+                    }
+                    output.Data[y, x, 0] = (float)sum;
+                }
+            }
+            return output;
+        }
+
         private void BoxBlur_Click(object sender, RoutedEventArgs e)
         {
             if (sourceImage == null) return;
