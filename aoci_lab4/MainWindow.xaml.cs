@@ -166,9 +166,7 @@ namespace aoci_lab4
                 { 1.0/9, 1.0/9, 1.0/9 }
             };
 
-            Image<Bgr, byte> bluredImage;
-
-            bluredImage = ApplyConvolution(sourceImage, kernel);
+            Image<Bgr, byte> bluredImage = ApplyConvolution(sourceImage, kernel);
 
             MainImage.Source = ToBitmapSource(bluredImage);
         }
@@ -183,9 +181,7 @@ namespace aoci_lab4
                 { 1.0/16, 2.0/16, 1.0/16 }
             };
 
-            Image<Bgr, byte> gaussianBluredImage;
-
-            gaussianBluredImage = ApplyConvolution(sourceImage, kernel);
+            Image<Bgr, byte> gaussianBluredImage  = ApplyConvolution(sourceImage, kernel);
 
             MainImage.Source = ToBitmapSource(gaussianBluredImage);
 
@@ -193,7 +189,17 @@ namespace aoci_lab4
 
         private void Sharpen_Click(object sender, RoutedEventArgs e)
         {
+            if (sourceImage == null) return;
 
+            double[,] kernel = {
+                { -1, -1, -1 },
+                { -1,  9, -1 },
+                { -1, -1, -1 }
+            };
+
+            Image<Bgr, byte> sharpenImage = ApplyConvolution(sourceImage, kernel);
+
+            MainImage.Source = ToBitmapSource(sharpenImage);
         }
 
         private void Sobel_Click(object sender, RoutedEventArgs e)
