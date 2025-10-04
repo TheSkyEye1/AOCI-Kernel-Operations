@@ -160,7 +160,6 @@ namespace aoci_lab4
         {
             if (sourceImage == null) return;
 
-            // Ядро для Box Blur 3x3
             double[,] kernel = {
                 { 1.0/9, 1.0/9, 1.0/9 },
                 { 1.0/9, 1.0/9, 1.0/9 },
@@ -176,6 +175,19 @@ namespace aoci_lab4
 
         private void GaussianBlur_Click(object sender, RoutedEventArgs e)
         {
+            if (sourceImage == null) return;
+
+            double[,] kernel = {
+                { 1.0/16, 2.0/16, 1.0/16 },
+                { 2.0/16, 4.0/16, 2.0/16 },
+                { 1.0/16, 2.0/16, 1.0/16 }
+            };
+
+            Image<Bgr, byte> gaussianBluredImage;
+
+            gaussianBluredImage = ApplyConvolution(sourceImage, kernel);
+
+            MainImage.Source = ToBitmapSource(gaussianBluredImage);
 
         }
 
