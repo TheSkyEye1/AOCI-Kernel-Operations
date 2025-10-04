@@ -24,11 +24,14 @@
                 <Border BorderBrush="DimGray" BorderThickness="1" Margin="5">
                     <StackPanel Margin="5">
 
-                        <Label Content="Оконные фильтры (Свёртка)" FontWeight="Bold"/>
-                        <Button Content="Размытие (Box Blur)" Click="BoxBlur_Click" Margin="0,5,0,0"/>
+                        <Label Content="Оконные фильтры" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <Button Content="Размытие" Click="BoxBlur_Click" Margin="0,5,0,0"/>
                         <Button Content="Размытие по Гауссу" Click="GaussianBlur_Click" Margin="0,5,0,0"/>
-                        <Button Content="Повышение резкости" Click="Sharpen_Click" Margin="0,5,0,0"/>
-                        <Button Content="Выделение границ (Собель)" Click="Sobel_Click" Margin="0,5,0,0"/>
+                        <Button Content="Повышение резкости" Click="Sharpen_Click" Margin="0,5,0,5"/>
+                        
+                        <Button Content="Выделение границ X" Click="SobelX_Click" Margin="0,5,0,0"/>
+                        <Button Content="Выделение границ Y" Click="SobelY_Click" Margin="0,5,0,0"/>
+                        <Button Content="Выделение границ X+Y" Click="SobelXY_Click" Margin="0,5,0,0"/>
 
                     </StackPanel>
                 </Border>

@@ -230,9 +230,144 @@ namespace aoci_lab4
             MainImage.Source = ToBitmapSource(sharpenImage);
         }
 
-        private void Sobel_Click(object sender, RoutedEventArgs e)
+        private void SobelX_Click(object sender, RoutedEventArgs e)
         {
+            if (sourceImage == null) return;
 
+            Image<Gray, byte> grayImage = sourceImage.Convert<Gray, byte>();
+            Image<Bgr, byte> resultImage;
+
+            double[,] kernelX = {
+                { -1, 0, 1 },
+                { -2, 0, 2 },
+                { -1, 0, 1 }
+            };
+
+            Image<Gray, float> gradientX = ApplyConvolution(grayImage, kernelX);
+
+            Image<Gray, float> magnitude = new Image<Gray, float>(grayImage.Size);
+
+            for (int y = 0; y < magnitude.Height; y++)
+            {
+                for (int x = 0; x < magnitude.Width; x++)
+                {
+                    float gx = Math.Abs(gradientX.Data[y, x, 0]);
+                    magnitude.Data[y, x, 0] = gx;
+                }
+            }
+
+            double maxVal = 0;
+
+            for (int y = 0; y < magnitude.Height; y++)
+            {
+                for (int x = 0; x < magnitude.Width; x++)
+                {
+                    if (magnitude.Data[y, x, 0] > maxVal)
+                    {
+                        maxVal = magnitude.Data[y, x, 0];
+                    }
+                }
+            }
+
+            Image<Gray, byte> normalizedMagnitude = magnitude.ConvertScale<byte>(255.0 / maxVal, 0);
+            resultImage = normalizedMagnitude.Convert<Bgr, byte>();
+            MainImage.Source = ToBitmapSource(resultImage);
+        }
+
+        private void SobelY_Click(object sender, RoutedEventArgs e)
+        {
+            if (sourceImage == null) return;
+
+            Image<Gray, byte> grayImage = sourceImage.Convert<Gray, byte>();
+            Image<Bgr, byte> resultImage;
+
+            double[,] kernelY = {
+                { -1, -2, -1 },
+                {  0,  0,  0 },
+                {  1,  2,  1 }
+            };
+
+            Image<Gray, float> gradientY = ApplyConvolution(grayImage, kernelY);
+
+            Image<Gray, float> magnitude = new Image<Gray, float>(grayImage.Size);
+
+            for (int y = 0; y < magnitude.Height; y++)
+            {
+                for (int x = 0; x < magnitude.Width; x++)
+                {
+                    float gy = Math.Abs(gradientY.Data[y, x, 0]);
+                    magnitude.Data[y, x, 0] = gy;
+                }
+            }
+
+            double maxVal = 0;
+
+            for (int y = 0; y < magnitude.Height; y++)
+            {
+                for (int x = 0; x < magnitude.Width; x++)
+                {
+                    if (magnitude.Data[y, x, 0] > maxVal)
+                    {
+                        maxVal = magnitude.Data[y, x, 0];
+                    }
+                }
+            }
+
+            Image<Gray, byte> normalizedMagnitude = magnitude.ConvertScale<byte>(255.0 / maxVal, 0);
+            resultImage = normalizedMagnitude.Convert<Bgr, byte>();
+            MainImage.Source = ToBitmapSource(resultImage);
+        }
+
+        private void SobelXY_Click(object sender, RoutedEventArgs e)
+        {
+            if (sourceImage == null) return;
+
+            Image<Gray, byte> grayImage = sourceImage.Convert<Gray, byte>();
+            Image<Bgr, byte> resultImage;
+
+            double[,] kernelX = {
+                { -1, 0, 1 },
+                { -2, 0, 2 },
+                { -1, 0, 1 }
+            };
+
+            double[,] kernelY = {
+                { -1, -2, -1 },
+                {  0,  0,  0 },
+                {  1,  2,  1 }
+            };
+
+            Image<Gray, float> gradientX = ApplyConvolution(grayImage, kernelX);
+            Image<Gray, float> gradientY = ApplyConvolution(grayImage, kernelY);
+
+            Image<Gray, float> magnitude = new Image<Gray, float>(grayImage.Size);
+
+            for (int y = 0; y < magnitude.Height; y++)
+            {
+                for (int x = 0; x < magnitude.Width; x++)
+                {
+                    float gx = Math.Abs(gradientX.Data[y, x, 0]);
+                    float gy = Math.Abs(gradientY.Data[y, x, 0]);
+                    magnitude.Data[y, x, 0] = gx + gy;
+                }
+            }
+
+            double maxVal = 0;
+
+            for (int y = 0; y < magnitude.Height; y++)
+            {
+                for (int x = 0; x < magnitude.Width; x++)
+                {
+                    if (magnitude.Data[y, x, 0] > maxVal)
+                    {
+                        maxVal = magnitude.Data[y, x, 0];
+                    }
+                }
+            }
+
+            Image<Gray, byte> normalizedMagnitude = magnitude.ConvertScale<byte>(255.0 / maxVal, 0);
+            resultImage = normalizedMagnitude.Convert<Bgr, byte>();
+            MainImage.Source = ToBitmapSource(resultImage);
         }
     }
 }
