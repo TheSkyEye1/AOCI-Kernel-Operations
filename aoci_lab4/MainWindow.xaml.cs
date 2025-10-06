@@ -5,6 +5,8 @@ using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using Emgu.CV.Structure;
 using Emgu.CV;
+using System.Globalization;
+using System.Windows.Controls;
 
 namespace aoci_lab4
 {
@@ -368,6 +370,43 @@ namespace aoci_lab4
             Image<Gray, byte> normalizedMagnitude = magnitude.ConvertScale<byte>(255.0 / maxVal, 0);
             resultImage = normalizedMagnitude.Convert<Bgr, byte>();
             MainImage.Source = ToBitmapSource(resultImage);
+        }
+
+        private void CustomFilter_Click(object sender, RoutedEventArgs e)
+        {
+            if (sourceImage == null) return;
+
+            double[,] kernel = ReadCustomKernelFromUI();
+
+            Image<Bgr, byte> bluredImage = ApplyConvolution(sourceImage, kernel);
+
+            MainImage.Source = ToBitmapSource(bluredImage);
+        }
+
+        private double[,] ReadCustomKernelFromUI()
+        {
+            double[,] customKernel = new double[3, 3];
+
+            for (int i = 0; i < KernelGrid.Children.Count; i++)
+            {
+                if (KernelGrid.Children[i] is TextBox textBox)
+                {
+                    int row = i / 3;
+                    int col = i % 3;
+
+                    if (double.TryParse(textBox.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out double value))
+                    {
+                        customKernel[row, col] = value;
+                    }
+                    else
+                    {
+                        customKernel[row, col] = 0;
+                        MessageBox.Show($"Ошибка: в ячейке [{row + 1}, {col + 1}] неверное значение: '{textBox.Text}'. Установлено значение 0.");
+                    }
+                }
+            }
+
+            return customKernel;
         }
     }
 }

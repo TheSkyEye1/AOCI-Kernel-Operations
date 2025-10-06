@@ -36,8 +36,21 @@
                         <Label Content="Кастомный фильтр" FontWeight="Bold" HorizontalAlignment="Center"/>
 
                         <Border BorderBrush="DimGray" BorderThickness="1" Margin="5">
+                            <UniformGrid Rows="3" Columns="3" x:Name="KernelGrid">
+                                <TextBox Height="30" Width="40" Margin="4" Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                                <TextBox Height="30" Width="40" Margin="4" Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                                <TextBox Height="30" Width="40" Margin="4" Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                                <TextBox Height="30" Width="40" Margin="4" Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                                <TextBox Height="30" Width="40" Margin="4" Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                                <TextBox Height="30" Width="40" Margin="4" Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                                <TextBox Height="30" Width="40" Margin="4" Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                                <TextBox Height="30" Width="40" Margin="4" Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                                <TextBox Height="30" Width="40" Margin="4" Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+                            </UniformGrid>
                         </Border>
-                        
+
+                        <Button Content="Применить фильтр" Click="CustomFilter_Click" Margin="0,5,0,10"/>
+
                     </StackPanel>
                 </Border>
                 
