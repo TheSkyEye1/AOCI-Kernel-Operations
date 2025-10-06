@@ -31,8 +31,13 @@
                         
                         <Button Content="Выделение границ X" Click="SobelX_Click" Margin="0,5,0,0"/>
                         <Button Content="Выделение границ Y" Click="SobelY_Click" Margin="0,5,0,0"/>
-                        <Button Content="Выделение границ X+Y" Click="SobelXY_Click" Margin="0,5,0,0"/>
+                        <Button Content="Выделение границ X+Y" Click="SobelXY_Click" Margin="0,5,0,10"/>
 
+                        <Label Content="Кастомный фильтр" FontWeight="Bold" HorizontalAlignment="Center"/>
+
+                        <Border BorderBrush="DimGray" BorderThickness="1" Margin="5">
+                        </Border>
+                        
                     </StackPanel>
                 </Border>
                 
