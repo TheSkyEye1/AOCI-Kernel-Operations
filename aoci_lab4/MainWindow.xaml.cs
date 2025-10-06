@@ -120,33 +120,47 @@ namespace aoci_lab4
             MainImage.Source = ToBitmapSource(sourceImage);
         }
 
+
+        //--- Функция Свертки ---
+
+        //Функция применяет операцию свертки к цветному изображению.
+        //Свертка — это процесс, где новый цвет каждого пикселя вычисляется как взвешенная сумма цветов его соседей.
+        //Веса задаются ядром (матрицей (kernel)). Это основа для множества эффектов: размытия, повышения резкости, выделения границ и т.д.
         private Image<Bgr, byte> ApplyConvolution(Image<Bgr, byte> input, double[,] kernel)
         {
-            int kernelSize = kernel.GetLength(0);
-            int kernelRadius = kernelSize / 2;
+            int kernelSize = kernel.GetLength(0); //Размер ядра, в нашем случае 3 для матрицы 3x3.
+            int kernelRadius = kernelSize / 2; //Радиус ядра, в нашем случае 1 для ядра 3x3.
 
+            //Мы создаем клон, потому что для расчета каждого нового пикселя нужны ОРИГИНАЛЬНЫЕ значения соседних пикселей
             Image<Bgr, byte> output = input.Clone();
 
+            //Основной цикл проходит по всем пикселям, которые могут быть центром ядра, не выходя за границы изображения. Поэтому мы "пропускаем" края.
             for (int y = kernelRadius; y < input.Height - kernelRadius; y++)
             {
                 for (int x = kernelRadius; x < input.Width - kernelRadius; x++)
                 {
+                    //Сумма для каждого цветового канала.
                     double sumR = 0, sumG = 0, sumB = 0;
 
+                    //Внутренние циклы проходят по "окну" соседей, размер которого соответствует размеру ядра.
                     for (int ky = -kernelRadius; ky <= kernelRadius; ky++)
                     {
                         for (int kx = -kernelRadius; kx <= kernelRadius; kx++)
                         {
+                            //Получаем цвет соседнего пикселя.
                             Bgr neighborPixel = input[y + ky, x + kx];
 
+                            //Получаем соответствующее значение (вес) из ядра.
                             double kernelValue = kernel[ky + kernelRadius, kx + kernelRadius];
 
+                            //Умножаем цвет соседа на вес из ядра и прибавляем к общей сумме.
                             sumR += neighborPixel.Red * kernelValue;
                             sumG += neighborPixel.Green * kernelValue;
                             sumB += neighborPixel.Blue * kernelValue;
                         }
                     }
 
+                    //Записываем результат в выходное изображение.
                     output[y, x] = new Bgr(
                         (byte)Math.Max(0, Math.Min(255, sumB)),
                         (byte)Math.Max(0, Math.Min(255, sumG)),
@@ -158,6 +172,7 @@ namespace aoci_lab4
             return output;
         }
 
+        //Перегруженная версия ApplyConvolution для изображений в градациях серого.
         private Image<Gray, float> ApplyConvolution(Image<Gray, byte> input, double[,] kernel)
         {
             int kernelSize = kernel.GetLength(0);
@@ -175,17 +190,26 @@ namespace aoci_lab4
                     {
                         for (int kx = -kernelRadius; kx <= kernelRadius; kx++)
                         {
+                            //Прямой доступ к данным изображения. `[y, x, 0]` - 0 означает первый (и единственный) канал т.к. изображение в градациях серого.
                             byte neighborPixel = input.Data[y + ky, x + kx, 0];
                             double kernelValue = kernel[ky + kernelRadius, kx + kernelRadius];
                             sum += neighborPixel * kernelValue;
                         }
                     }
+
+                    //Здесь мы НЕ зажимаем значение в [0, 255], а сохраняем полный результат для дальнейшей обработки (например, нормализации).
                     output.Data[y, x, 0] = (float)sum;
                 }
             }
             return output;
         }
 
+        //--- Примеры фильтров на основе свертки ---
+
+
+        //Применяет простое размытие (Box Blur).
+        //Ядро состоит из одинаковых значений. Это равносильно замене каждого пикселя на среднее арифметическое его и 8-ми соседей.
+        //Дает "квадратный" эффект размытия. Сумма всех элементов ядра равна 1, чтобы сохранить общую яркость изображения.
         private void BoxBlur_Click(object sender, RoutedEventArgs e)
         {
             if (sourceImage == null) return;
@@ -201,6 +225,9 @@ namespace aoci_lab4
             MainImage.Source = ToBitmapSource(bluredImage);
         }
 
+        //Применяет размытие по Гауссу.
+        //Это более качественное размытие. Веса в ядре распределены по функции Гаусса: центральный пиксель имеет наибольший вес,
+        //а соседи — тем меньший, чем дальше они от центра. Дает более плавный и естественный результат. Сумма ядра также равна 1.
         private void GaussianBlur_Click(object sender, RoutedEventArgs e)
         {
             if (sourceImage == null) return;
@@ -217,6 +244,9 @@ namespace aoci_lab4
 
         }
 
+        //Применяет фильтр повышения резкости (Sharpen).
+        //Ядро работает по принципу "нерезкого маскирования": центральный пиксель усиливается, а его размытая версия (представленная отрицательными весами) вычитается.
+        //Это увеличивает локальный контраст на границах объектов. Сумма ядра (9 - 8) равна 1.
         private void Sharpen_Click(object sender, RoutedEventArgs e)
         {
             if (sourceImage == null) return;
@@ -232,23 +262,32 @@ namespace aoci_lab4
             MainImage.Source = ToBitmapSource(sharpenImage);
         }
 
+        //--- Выделение границ (Оператор Собеля) ---
+        // Выделяет вертикальные границы с помощью оператора Собеля.
+
         private void SobelX_Click(object sender, RoutedEventArgs e)
         {
             if (sourceImage == null) return;
 
+            // Выделение границ работает с яркостью, а не с цветом. Конвертируем в серое.
             Image<Gray, byte> grayImage = sourceImage.Convert<Gray, byte>();
             Image<Bgr, byte> resultImage;
 
+            //Ядро Собеля для оси X. Оно реагирует на изменения яркости по горизонтали (вертикальные линии).
             double[,] kernelX = {
                 { -1, 0, 1 },
                 { -2, 0, 2 },
                 { -1, 0, 1 }
             };
 
+            //Применяем свертку. Результат будет в float-изображении (градиент).
             Image<Gray, float> gradientX = ApplyConvolution(grayImage, kernelX);
 
             Image<Gray, float> magnitude = new Image<Gray, float>(grayImage.Size);
 
+            //Нормализация для отображения.
+            //Градиент содержит отрицательные (<0) и большие значения (>255), которые нельзя просто показать.
+            //Мы растягиваем диапазон значений градиента на обрабатываемый диапазон [0, 255].
             for (int y = 0; y < magnitude.Height; y++)
             {
                 for (int x = 0; x < magnitude.Width; x++)
@@ -258,6 +297,7 @@ namespace aoci_lab4
                 }
             }
 
+            //Находим максимальное значение градиента на изображении.
             double maxVal = 0;
 
             for (int y = 0; y < magnitude.Height; y++)
@@ -271,11 +311,14 @@ namespace aoci_lab4
                 }
             }
 
+            //Масштабируем изображение так, чтобы maxVal стал 255.
             Image<Gray, byte> normalizedMagnitude = magnitude.ConvertScale<byte>(255.0 / maxVal, 0);
             resultImage = normalizedMagnitude.Convert<Bgr, byte>();
+
             MainImage.Source = ToBitmapSource(resultImage);
         }
 
+        //Выделяет горизонтальные границы с помощью оператора Собеля.
         private void SobelY_Click(object sender, RoutedEventArgs e)
         {
             if (sourceImage == null) return;
@@ -283,6 +326,7 @@ namespace aoci_lab4
             Image<Gray, byte> grayImage = sourceImage.Convert<Gray, byte>();
             Image<Bgr, byte> resultImage;
 
+            //Ядро Собеля для оси Y. Оно реагирует на изменения яркости по вертикали (горизонтальные линии).
             double[,] kernelY = {
                 { -1, -2, -1 },
                 {  0,  0,  0 },
@@ -320,6 +364,7 @@ namespace aoci_lab4
             MainImage.Source = ToBitmapSource(resultImage);
         }
 
+        //Выделяет все границы, комбинируя градиенты по X и Y.
         private void SobelXY_Click(object sender, RoutedEventArgs e)
         {
             if (sourceImage == null) return;
@@ -350,6 +395,7 @@ namespace aoci_lab4
                 {
                     float gx = Math.Abs(gradientX.Data[y, x, 0]);
                     float gy = Math.Abs(gradientY.Data[y, x, 0]);
+                    //Результат складывается.
                     magnitude.Data[y, x, 0] = gx + gy;
                 }
             }
@@ -372,6 +418,8 @@ namespace aoci_lab4
             MainImage.Source = ToBitmapSource(resultImage);
         }
 
+        //--- Настраиваемый фильтр ---
+        //Применяет фильтр, заданный пользователем в UI.
         private void CustomFilter_Click(object sender, RoutedEventArgs e)
         {
             if (sourceImage == null) return;
@@ -383,6 +431,7 @@ namespace aoci_lab4
             MainImage.Source = ToBitmapSource(bluredImage);
         }
 
+        //Считывает матрицу 3x3 из TextBox в Grid.
         private double[,] ReadCustomKernelFromUI()
         {
             double[,] customKernel = new double[3, 3];
